@@ -1,10 +1,19 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PW.DataAccess;
+using PW.DataAccess.Interfaces;
+using PW.DataAccess.Repositories;
+using PW.Services;
+using PW.Services.Interfaces;
+using PW.Services.Mapping;
 
 namespace ParrotWingsReactBack
 {
@@ -20,6 +29,16 @@ namespace ParrotWingsReactBack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(MappingProfile));
+
+            // Repositories
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+            // Services
+            services.AddScoped<IMembershipService, MembershipService>();
+            services.AddScoped<IEncryptionService, EncryptionService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             services.AddControllers();
 
@@ -28,6 +47,13 @@ namespace ParrotWingsReactBack
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddDbContext<PwDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ParrotWings"), x => x.MigrationsAssembly("PW.DataAccess"))
+                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,7 +72,9 @@ namespace ParrotWingsReactBack
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
+            app.UseAuthentication();            
             app.UseRouting();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
