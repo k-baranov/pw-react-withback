@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using PW.DataAccess.Interfaces;
+using PW.DataTransferObjects.Users;
 using PW.Entities;
 using PW.Services.Interfaces;
 using System;
@@ -19,20 +21,22 @@ namespace PW.Services
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
         private readonly IEncryptionService _encryptionService;
+        private readonly IMapper _mapper;
 
-        public MembershipService(IConfiguration configuration, IUserRepository userRepository, IEncryptionService encryptionService)
+        public MembershipService(IConfiguration configuration, IUserRepository userRepository, IEncryptionService encryptionService, IMapper mapper)
         {
             _configuration = configuration;
             _userRepository = userRepository;
             _encryptionService = encryptionService;
+            _mapper = mapper;
         }
 
-        public ClaimsPrincipal GetUserClaimsPrincipal(PwUser user)
+        public ClaimsPrincipal GetUserClaimsPrincipal(UserDto userDto)
         {
             ClaimsPrincipal claimsPrincipal = null;
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email)
+                new Claim(ClaimTypes.Name, userDto.Email)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
@@ -41,19 +45,20 @@ namespace PW.Services
             return claimsPrincipal;
         }
 
-        public async Task<PwUser> GetUserAsync(string email, string password)
+        public async Task<UserDto> GetUserAsync(LoginDto loginDto)
         {
-            var user = await _userRepository.GetSingleByEmailAsync(email);
-            if (user == null || !IsUserValid(user, password))
+            var user = await _userRepository.GetByEmailAsync(loginDto.Email);
+            if (user == null || !IsUserValid(user, loginDto.Password))
             {
                 throw new ArgumentException(InvalidUsernameOrPasswordMessage);
             }
-            return user;
+            var result = _mapper.Map<UserDto>(user);
+            return result;
         }
 
-        public async Task CreateUserAsync(string username, string email, string password)
+        public async Task CreateUserAsync(SignUpDto signUpDto)
         {
-            var existingUser = await _userRepository.GetSingleByEmailAsync(email);
+            var existingUser = await _userRepository.GetByEmailAsync(signUpDto.Email);
 
             if (existingUser != null)
             {
@@ -73,24 +78,19 @@ namespace PW.Services
 
             var user = new PwUser()
             {
-                UserName = username,
+                UserName = signUpDto.UserName,
                 Salt = passwordSalt,
-                Email = email,
-                PasswordHash = _encryptionService.EncryptPassword(password, passwordSalt),
+                Email = signUpDto.Email,
+                PasswordHash = _encryptionService.EncryptPassword(signUpDto.Password, passwordSalt),
                 Balance = startBalance
             };
 
             await _userRepository.AddAsync(user);            
-        }
-
-        private bool IsPasswordValid(PwUser user, string password)
-        {
-            return string.Equals(_encryptionService.EncryptPassword(password, user.Salt), user.PasswordHash);
-        }
+        }        
 
         private bool IsUserValid(PwUser user, string password)
         {
-            var result = IsPasswordValid(user, password);
+            var result = string.Equals(_encryptionService.EncryptPassword(password, user.Salt), user.PasswordHash);
             return result;
         }
     }

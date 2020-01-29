@@ -1,4 +1,5 @@
-﻿using PW.Entities;
+﻿using PW.DataTransferObjects.Users;
+using PW.Entities;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -9,8 +10,8 @@ namespace PW.Services.Interfaces
 {
     public interface IMembershipService
     {
-        ClaimsPrincipal GetUserClaimsPrincipal(PwUser user);
-        Task CreateUserAsync(string username, string email, string password);
-        Task<PwUser> GetUserAsync(string email, string password);
+        ClaimsPrincipal GetUserClaimsPrincipal(UserDto user);
+        Task CreateUserAsync(SignUpDto signUpDto);
+        Task<UserDto> GetUserAsync(LoginDto loginDto);
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PW.DataTransferObjects
+namespace PW.DataTransferObjects.Transactions
 {
     public class TransactionDto
     {

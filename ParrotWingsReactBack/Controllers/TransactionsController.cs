@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PW.DataTransferObjects;
+using PW.DataTransferObjects.Transactions;
 using PW.Entities;
 using PW.Services.Interfaces;
 using System;
@@ -32,7 +32,7 @@ namespace PW.Web.Controllers
         }
                 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<TransactionDto>> GetAllForCurrentUser()
         {
             var email = HttpContext.User.Identity.Name;
             var transactions = await _transactionService.GetTransactionsOrderedByDateAsync(email);
@@ -52,7 +52,7 @@ namespace PW.Web.Controllers
         //}
                 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateTransactionDto createTransactionDto)
+        public async Task<ActionResult> Create([FromBody]CreateTransactionDto createTransactionDto)
         {
             if (!ModelState.IsValid)
             {
@@ -60,10 +60,10 @@ namespace PW.Web.Controllers
             }
 
             var payeeEmail = HttpContext.User.Identity.Name;
-            PwTransaction transaction = null;
+            TransactionDto transactionDto = null;
             try
             {
-                transaction = await _transactionService.CreateTransactionAsync(payeeEmail, createTransactionDto.RecipientEmail, createTransactionDto.Amount);
+                transactionDto = await _transactionService.CreateTransactionAsync(payeeEmail, createTransactionDto);
             }
             catch (InvalidDataException ex)
             {

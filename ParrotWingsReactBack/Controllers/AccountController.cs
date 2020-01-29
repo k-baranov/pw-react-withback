@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PW.DataAccess.Interfaces;
-using PW.DataTransferObjects;
+using PW.DataTransferObjects.Users;
 using PW.Entities;
 using PW.Services.Interfaces;
 using System;
@@ -37,35 +37,35 @@ namespace PW.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<UserBalanceDto>> Login([FromBody] LoginDto loginDto)
         {
-            PwUser user = null;
+            UserDto userDto = null;
             ClaimsPrincipal claimsPrincipal = null;
             try
             {
-                user = await _membershipService.GetUserAsync(loginDto.Email, loginDto.Password);
-                claimsPrincipal = _membershipService.GetUserClaimsPrincipal(user);
+                userDto = await _membershipService.GetUserAsync(loginDto);
+                claimsPrincipal = _membershipService.GetUserClaimsPrincipal(userDto);
             }
-            catch (InvalidDataException ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
 
-            return Ok(_mapper.Map<UserBalanceDto>(user));
+            return Ok(userDto);
         }
                 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        public async Task<ActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Ok();
         }
                 
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] SignUpDto signUpDto)
+        public async Task<ActionResult> SignUp([FromBody] SignUpDto signUpDto)
         {
             if (!ModelState.IsValid)
             {
@@ -74,7 +74,7 @@ namespace PW.Web.Controllers
 
             try
             {
-                await _membershipService.CreateUserAsync(signUpDto.UserName, signUpDto.Email, signUpDto.Password);
+                await _membershipService.CreateUserAsync(signUpDto);
             }
             catch (InvalidDataException ex)
             {
@@ -86,10 +86,10 @@ namespace PW.Web.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Balance()
+        public async Task<ActionResult<UserBalanceDto>> Balance()
         {
             var email = HttpContext.User.Identity.Name;
-            var user = await _userRepository.GetSingleByEmailAsync(email);
+            var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
             {
                 return BadRequest(CurrentUserNotFoundMessage);

@@ -1,4 +1,6 @@
-﻿using PW.DataAccess.Interfaces;
+﻿using AutoMapper;
+using PW.DataAccess.Interfaces;
+using PW.DataTransferObjects.Transactions;
 using PW.Entities;
 using PW.Services.Interfaces;
 using System;
@@ -16,22 +18,24 @@ namespace PW.Services
 
         private ITransactionRepository _transactionRepository;
         private IUserRepository _userRepository;
+        private IMapper _mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository, IUserRepository userRepository)
+        public TransactionService(ITransactionRepository transactionRepository, IUserRepository userRepository, IMapper mapper)
         {
             _transactionRepository = transactionRepository;
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-        public async Task<PwTransaction> CreateTransactionAsync(string payeeEmail, string recipientEmail, int amount)
+        public async Task<TransactionDto> CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto)
         {
-            var payee = await _userRepository.GetSingleByEmailAsync(payeeEmail);
-            var recipient = await _userRepository.GetSingleByEmailAsync(recipientEmail);
+            var payee = await _userRepository.GetByEmailAsync(payeeEmail);
+            var recipient = await _userRepository.GetByEmailAsync(createTransactionDto.RecipientEmail);
 
-            ValidateCreation(payee, recipient, amount);
+            ValidateCreation(payee, recipient, createTransactionDto.Amount);
 
-            payee.Balance -= amount;
-            recipient.Balance += amount;
+            payee.Balance -= createTransactionDto.Amount;
+            recipient.Balance += createTransactionDto.Amount;
 
             var transaction = new PwTransaction
             {
@@ -39,12 +43,13 @@ namespace PW.Services
                 Recipient = recipient,
                 ResultingPayeeBalance = payee.Balance,
                 ResultingRecipientBalance = recipient.Balance,
-                Amount = amount,
+                Amount = createTransactionDto.Amount,
                 TransactionDateTime = DateTime.Now
             };
 
             await _transactionRepository.AddAsync(transaction);
-            return transaction;
+            var result = _mapper.Map<TransactionDto>(transaction);
+            return result;
         }
 
         private void ValidateCreation(PwUser payee, PwUser recipient, int amount)
@@ -60,30 +65,45 @@ namespace PW.Services
             }
         }
 
-        public async Task<IOrderedEnumerable<PwTransaction>> GetTransactionsOrderedByDateAsync(string email)
+        public async Task<IOrderedEnumerable<TransactionDto>> GetTransactionsOrderedByDateAsync(string email)
         {
-            var result = (await GetTransactionsAsync(email)).OrderByDescending(t => t.TransactionDateTime);
+            var result = (await GetTransactionsAsync(email)).OrderByDescending(t => t.DateTime);
             return result;
         }
 
-        private async Task<IEnumerable<PwTransaction>> GetTransactionsAsync(string email)
+        private async Task<IEnumerable<TransactionDto>> GetTransactionsAsync(string email)
         {
-            var user = await _userRepository.GetSingleWithTransactionsByEmailAsync(email);
-            var result = user.PayeeTransactions.Union(user.RecipientTransactions);
+            var user = await _userRepository.GetWithTransactionsByEmailAsync(email);
+            var payeeDtos = user.PayeeTransactions.Select(t => {
+                var transactionDto = _mapper.Map<TransactionDto>(t);
+                transactionDto.Name = t.Recipient.UserName;
+                transactionDto.Amount = -t.Amount;
+                transactionDto.Balance = t.ResultingPayeeBalance;
+                return transactionDto;
+            });
+            var recipientDtos = user.RecipientTransactions.Select(t => {
+                var transactionDto = _mapper.Map<TransactionDto>(t);
+                transactionDto.Name = t.Payee.UserName;
+                transactionDto.Amount = t.Amount;
+                transactionDto.Balance = t.ResultingRecipientBalance;
+                return transactionDto;
+            });
+
+            var result = payeeDtos.Union(recipientDtos);
             return result;
         }
 
-        public async Task<IOrderedEnumerable<PwTransaction>> GetPayeeTransactionsOrderedByDateAsync(string email)
-        {
-            var result = (await GetPayeeTransactionsAsync(email)).OrderByDescending(t => t.TransactionDateTime);
-            return result;
-        }
+        //public async Task<IOrderedEnumerable<PwTransaction>> GetPayeeTransactionsOrderedByDateAsync(string email)
+        //{
+        //    var result = (await GetPayeeTransactionsAsync(email)).OrderByDescending(t => t.TransactionDateTime);
+        //    return result;
+        //}
 
-        public async Task<IEnumerable<PwTransaction>> GetPayeeTransactionsAsync(string email)
-        {
-            var user = await _userRepository.GetSingleWithTransactionsByEmailAsync(email);
-            var result = user.PayeeTransactions;
-            return result;
-        }
+        //public async Task<IEnumerable<PwTransaction>> GetPayeeTransactionsAsync(string email)
+        //{
+        //    var user = await _userRepository.GetSingleWithTransactionsByEmailAsync(email);
+        //    var result = user.PayeeTransactions;
+        //    return result;
+        //}
     }
 }

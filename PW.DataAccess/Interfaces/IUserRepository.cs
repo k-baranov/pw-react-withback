@@ -8,7 +8,7 @@ namespace PW.DataAccess.Interfaces
 {
     public interface IUserRepository : IBaseRepository<PwUser>
     {
-        Task<PwUser> GetSingleByEmailAsync(string email);
-        Task<PwUser> GetSingleWithTransactionsByEmailAsync(string email);
+        Task<PwUser> GetByEmailAsync(string email);
+        Task<PwUser> GetWithTransactionsByEmailAsync(string email);
     }
 }

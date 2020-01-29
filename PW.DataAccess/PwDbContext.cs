@@ -11,8 +11,7 @@ namespace PW.DataAccess
     {
         public DbSet<PwTransaction> Transactions { get; set; }
         public DbSet<PwUser> Users { get; set; }
-
-        public PwDbContext() { }
+        
         public PwDbContext(DbContextOptions<PwDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

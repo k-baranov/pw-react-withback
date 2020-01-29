@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace PW.DataTransferObjects
+namespace PW.DataTransferObjects.Users
 {
     public class LoginDto
     {

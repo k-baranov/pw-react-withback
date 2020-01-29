@@ -13,74 +13,71 @@ namespace PW.DataAccess.Repositories
 {
     public class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity>
         where TEntity : BaseEntity
-        where TContext : DbContext, new()
+        where TContext : DbContext
     {
-        public virtual async Task<IReadOnlyCollection<TEntity>> GetAllAsync()
+        protected TContext _dbContext;
+
+        public BaseRepository(TContext dbContext)
         {
-            using var context = new TContext();
-            return await context.Set<TEntity>().ToListAsync();
+            _dbContext = dbContext;
+        }
+
+        public virtual async Task<IReadOnlyCollection<TEntity>> GetAllAsync()
+        {            
+            return await _dbContext.Set<TEntity>().ToListAsync();
         }
         
         public virtual async Task<long> CountAsync()
-        {
-            using var context = new TContext();
-            return await context.Set<TEntity>().CountAsync();
+        {            
+            return await _dbContext.Set<TEntity>().CountAsync();
         }
         
         public virtual async Task<IReadOnlyCollection<TEntity>> AllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
-        {
-            using var context = new TContext();
-            var query = GetQueryWithProperties(context, includeProperties);
+        {            
+            var query = GetQueryWithProperties(includeProperties);
             return await query.ToListAsync();
         }
         
         public virtual async Task<TEntity> GetSingleAsync(long id)
-        {
-            using var context = new TContext();
-            return await context.Set<TEntity>().FirstOrDefaultAsync(x => x.Id.Equals(id));
+        {            
+            return await _dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id.Equals(id));
         }
         
         public virtual async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            using var context = new TContext();
-            return await context.Set<TEntity>().FirstOrDefaultAsync(predicate);
+        {            
+            return await _dbContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
         }
         
         public virtual async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties)
-        {
-            using var context = new TContext();
-            var query = GetQueryWithProperties(context, includeProperties);
+        {            
+            var query = GetQueryWithProperties(includeProperties);
             return await query.Where(predicate).FirstOrDefaultAsync();
         }
         
         public virtual async Task<IReadOnlyCollection<TEntity>> FindByAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            using var context = new TContext();
-            return await context.Set<TEntity>().Where(predicate).ToListAsync();
+        {            
+            return await _dbContext.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
         public virtual async Task AddAsync(TEntity entity)
-        {
-            using var context = new TContext();
-            EntityEntry dbEntityEntry = context.Entry(entity);
-            context.Set<TEntity>().Add(entity);
-            await context.SaveChangesAsync();
+        {            
+            EntityEntry dbEntityEntry = _dbContext.Entry(entity);
+            _dbContext.Set<TEntity>().Add(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public virtual async Task UpdateAsync(TEntity entity)
-        {
-            using var context = new TContext();
-            EntityEntry dbEntityEntry = context.Entry(entity);
+        {            
+            EntityEntry dbEntityEntry = _dbContext.Entry(entity);
             dbEntityEntry.State = EntityState.Modified;
-            await context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         public virtual async Task DeleteAsync(TEntity entity)
-        {
-            using var context = new TContext();
-            EntityEntry dbEntityEntry = context.Entry(entity);
+        {            
+            EntityEntry dbEntityEntry = _dbContext.Entry(entity);
             dbEntityEntry.State = EntityState.Deleted;
-            await context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         public virtual async Task DeleteByIdAsync(long id)
@@ -89,20 +86,19 @@ namespace PW.DataAccess.Repositories
         }
 
         public virtual async Task DeleteWhereAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            using var context = new TContext();
-            IEnumerable<TEntity> entities = context.Set<TEntity>().Where(predicate);
+        {            
+            IEnumerable<TEntity> entities = _dbContext.Set<TEntity>().Where(predicate);
 
             foreach (var entity in entities)
             {
-                context.Entry(entity).State = EntityState.Deleted;
+                _dbContext.Entry(entity).State = EntityState.Deleted;
             }
-            await context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
         
-        private IQueryable<TEntity> GetQueryWithProperties(TContext context, params Expression<Func<TEntity, object>>[] includeProperties)
+        private IQueryable<TEntity> GetQueryWithProperties(params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            IQueryable<TEntity> query = context.Set<TEntity>();
+            IQueryable<TEntity> query = _dbContext.Set<TEntity>();
             foreach (var includeProperty in includeProperties)
             {
                 query = query.Include(includeProperty);
