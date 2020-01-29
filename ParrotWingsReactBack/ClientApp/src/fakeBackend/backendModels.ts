@@ -1,6 +1,5 @@
-export interface ITransactionInfo {
-  id: number;
-  date: Date;
+export interface ITransactionInfo {  
+  date: string;
   correspondentName: string;
   amount: number;
   resultBalance: number;

@@ -39,8 +39,8 @@ namespace PW.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<UserBalanceDto>> Login([FromBody] LoginDto loginDto)
         {
-            UserDto userDto = null;
-            ClaimsPrincipal claimsPrincipal = null;
+            UserDto userDto;
+            ClaimsPrincipal claimsPrincipal;
             try
             {
                 userDto = await _membershipService.GetUserAsync(loginDto);
@@ -72,16 +72,21 @@ namespace PW.Web.Controllers
                 return BadRequest(InvalidUserDataMessage);
             }
 
-            UserBalanceDto result;
+            UserDto userDto;
+            ClaimsPrincipal claimsPrincipal;
             try
             {
-                result = await _membershipService.CreateUserAsync(signUpDto);
+                userDto = await _membershipService.CreateUserAsync(signUpDto);
+                claimsPrincipal = _membershipService.GetUserClaimsPrincipal(userDto);
             }
             catch (InvalidDataException ex)
             {
                 return BadRequest(ex.Message);
             }
 
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+            var result = _mapper.Map<UserBalanceDto>(userDto);
             return Ok(result);
         }
 

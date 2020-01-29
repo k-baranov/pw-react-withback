@@ -15,8 +15,9 @@ namespace PW.Services.Mapping
         {
             CreateMap<PwUser, UserBalanceDto>();
             CreateMap<PwUser, UserDto>();
+            CreateMap<UserDto, UserBalanceDto>();
             CreateMap<PwTransaction, TransactionDto>()
-                .ForMember(t => t.Date, opt => opt.MapFrom(src => src.TransactionDateTime.ToString("G", new CultureInfo("RU-ru"))));                
+                .ForMember(t => t.Date, opt => opt.MapFrom(src => src.TransactionDateTime.ToString("u", new CultureInfo("en-US"))));                
         }
     }
 }

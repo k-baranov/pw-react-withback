@@ -7,7 +7,7 @@ import { NavRoute } from '../MainRouter/MainRouter'
 import { SessionContext } from '../SessionProvider/SessionProvider';
 
 export interface INavProps {
-  activeNavItem: NavRoute, 
+  activeNavItem?: NavRoute, 
   setActiveNavItem: React.Dispatch<React.SetStateAction<NavRoute>>
 }
 

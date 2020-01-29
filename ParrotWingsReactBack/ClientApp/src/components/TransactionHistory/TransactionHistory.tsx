@@ -6,8 +6,9 @@ import { ApiContext } from '../ApiProvider/ApiProvider'
 import { useHistory } from 'react-router';
 import { NavRoute } from '../MainRouter/MainRouter';
 import { ITransactionInfo } from '../../fakeBackend/backendModels';
+import { INavProps } from '../Nav/Nav'
 
-export default function TransactionHistory({setActiveNavItem}: {setActiveNavItem: React.Dispatch<React.SetStateAction<NavRoute>> | null}) {
+export default function TransactionHistory({setActiveNavItem}: INavProps) {
   const history = useHistory();    
   const [ transactions, setTransactions ] = useState(new Array<ITransactionInfo>());
   const api = useContext(ApiContext);
@@ -47,8 +48,8 @@ export default function TransactionHistory({setActiveNavItem}: {setActiveNavItem
       
       <Table.Body>
       {transactions.map((transaction: ITransactionInfo) => 
-        <Table.Row key={transaction.id}>
-          <Table.Cell>{transaction.date.toLocaleString()}</Table.Cell>
+        <Table.Row key={transaction.date}>
+          <Table.Cell>{transaction.date}</Table.Cell>
           <Table.Cell>{transaction.correspondentName}</Table.Cell>
           <Table.Cell>{transaction.amount}</Table.Cell>
           <Table.Cell>{transaction.resultBalance}</Table.Cell>

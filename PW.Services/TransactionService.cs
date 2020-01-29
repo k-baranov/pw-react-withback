@@ -30,7 +30,7 @@ namespace PW.Services
         public async Task CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto)
         {
             var payee = await _userRepository.GetByEmailAsync(payeeEmail);
-            var recipient = await _userRepository.GetByEmailAsync(createTransactionDto.UserName);
+            var recipient = await _userRepository.GetByNameAsync(createTransactionDto.UserName);
 
             ValidateCreation(payee, recipient, createTransactionDto.Amount);
 

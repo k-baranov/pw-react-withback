@@ -56,7 +56,7 @@ namespace PW.Services
             return result;
         }
 
-        public async Task<UserBalanceDto> CreateUserAsync(SignUpDto signUpDto)
+        public async Task<UserDto> CreateUserAsync(SignUpDto signUpDto)
         {
             var existingUser = await _userRepository.GetByEmailAsync(signUpDto.Email);
 
@@ -86,7 +86,7 @@ namespace PW.Services
             };
 
             await _userRepository.AddAsync(user);
-            return _mapper.Map<UserBalanceDto>(user);
+            return _mapper.Map<UserDto>(user);
         }        
 
         private bool IsUserValid(PwUser user, string password)

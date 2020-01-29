@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 import styles from './LoginForm.module.css'
 import { SessionContext } from '../SessionProvider/SessionProvider';
 import { NavRoute } from '../MainRouter/MainRouter';
+import { INavProps } from '../Nav/Nav'
 
-export default function LoginForm() {
+export default function LoginForm({setActiveNavItem}: INavProps) {
   const history = useHistory();
   const { login } = useContext(SessionContext);
   const [ email, setEmail ] = useState('');
@@ -16,6 +17,7 @@ export default function LoginForm() {
   const handleLoginClick = async () => {
     try {
       await login({email, password});
+      setActiveNavItem(NavRoute.Home);
       history.push(NavRoute.Home);
     } catch (ex) {
       toast.error(ex.message);

@@ -49,8 +49,7 @@ namespace ParrotWingsReactBack
             });
 
             services.AddDbContext<PwDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("ParrotWings"), x => x.MigrationsAssembly("PW.DataAccess"))
-                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+                options.UseSqlServer(Configuration.GetConnectionString("ParrotWings"), x => x.MigrationsAssembly("PW.DataAccess")));                        
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();

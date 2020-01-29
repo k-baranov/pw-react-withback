@@ -26,10 +26,10 @@ export default function MainRouter() {
     <Router>
       <Switch>
         <Route path={NavRoute.Login}>
-          <LoginForm />
+          <LoginForm setActiveNavItem={setActiveNavItem}/>
         </Route>
         <Route path={NavRoute.SignUp}>
-          <SignUpForm />
+          <SignUpForm setActiveNavItem={setActiveNavItem}/>
         </Route>
         <PrivateRoute exact path={NavRoute.Home}>
           <Layout activeNavItem={activeNavItem} setActiveNavItem={setActiveNavItem}>

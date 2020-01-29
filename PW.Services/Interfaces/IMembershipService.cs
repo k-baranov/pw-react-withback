@@ -11,7 +11,7 @@ namespace PW.Services.Interfaces
     public interface IMembershipService
     {
         ClaimsPrincipal GetUserClaimsPrincipal(UserDto user);
-        Task<UserBalanceDto> CreateUserAsync(SignUpDto signUpDto);
+        Task<UserDto> CreateUserAsync(SignUpDto signUpDto);
         Task<UserDto> GetUserAsync(LoginDto loginDto);
     }
 }

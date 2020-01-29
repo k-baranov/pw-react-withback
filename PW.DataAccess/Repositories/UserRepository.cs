@@ -21,6 +21,11 @@ namespace PW.DataAccess.Repositories
             return await GetSingleAsync(x => x.Email == email);
         }
 
+        public async Task<PwUser> GetByNameAsync(string name)
+        {
+            return await GetSingleAsync(x => x.UserName == name);
+        }
+
         public async Task<PwUser> GetWithTransactionsByEmailAsync(string email)
         {            
             IQueryable<PwUser> query = _dbContext.Users;
