@@ -59,11 +59,10 @@ namespace PW.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            var payeeEmail = HttpContext.User.Identity.Name;
-            TransactionDto transactionDto = null;
+            var payeeEmail = HttpContext.User.Identity.Name;            
             try
             {
-                transactionDto = await _transactionService.CreateTransactionAsync(payeeEmail, createTransactionDto);
+                await _transactionService.CreateTransactionAsync(payeeEmail, createTransactionDto);
             }
             catch (InvalidDataException ex)
             {

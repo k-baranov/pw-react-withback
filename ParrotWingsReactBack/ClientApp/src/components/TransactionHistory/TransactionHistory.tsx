@@ -46,7 +46,7 @@ export default function TransactionHistory({setActiveNavItem}: {setActiveNavItem
 
       
       <Table.Body>
-      {transactions.map((transaction) => 
+      {transactions.map((transaction: ITransactionInfo) => 
         <Table.Row key={transaction.id}>
           <Table.Cell>{transaction.date.toLocaleString()}</Table.Cell>
           <Table.Cell>{transaction.correspondentName}</Table.Cell>

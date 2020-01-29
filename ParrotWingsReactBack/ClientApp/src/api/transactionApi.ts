@@ -3,8 +3,8 @@ import { AxiosInstance } from 'axios';
 import { ITransactionInfo, INewTransaction } from '../fakeBackend/backendModels';
 import FakeBackend from '../fakeBackend/fakeBackend';
 
-const TRANSACTION_LIST_URL = '/api/transaction/list';
-const NEW_TRANSACTION_URL = '/api/transaction/add';
+const TRANSACTION_LIST_URL = '/api/transactions/getAllForCurrentUser';
+const NEW_TRANSACTION_URL = '/api/transactions/create';
 
 export default class TransactionApi {
   constructor(private readonly client: AxiosInstance) {}
@@ -17,7 +17,7 @@ export default class TransactionApi {
 
   async getTransactions(): Promise<Array<ITransactionInfo>> {
     const { data } = await this.client.get(TRANSACTION_LIST_URL);
-    return { ...data };
+    return data;
 
     //const data = await this.backend.getTransactions();
     //return data;

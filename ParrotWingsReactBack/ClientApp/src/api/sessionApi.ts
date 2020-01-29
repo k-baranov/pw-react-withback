@@ -3,10 +3,11 @@ import { AxiosInstance } from 'axios';
 import { ILoginOptions, ISignUpOptions, ISessionInfo } from '../fakeBackend/backendModels';
 import FakeBackend from '../fakeBackend/fakeBackend';
 
-const LOGIN_URL = '/api/account/login';
+const LOGIN_URL = '/api/session/login';
 const SINGUP_URL = '/api/session/signUp';
 const LOGOUT_URL = '/api/session/logout';
 const SESSION_INFO_URL = '/api/session/getSessionInfo';
+const USERNAME_OPTIONS_URL = '/api/users/getUsernameOptions';
 
 export default class SessionApi {  
   constructor(private readonly client: AxiosInstance) {}
@@ -22,7 +23,7 @@ export default class SessionApi {
     const { data } = await this.client.post(SINGUP_URL, options);
     
     //const data = await this.backend.signUp(options);
-    return data;
+    return { ...data };
   }
 
   async logout(): Promise<void> {
@@ -39,7 +40,9 @@ export default class SessionApi {
   }
 
   async getUsernameOptions(): Promise<Array<string>> {
-    //const data = await this.backend.getUsernameOptions();
-    return new Array<string>();
+    const { data } = await this.client.get(USERNAME_OPTIONS_URL);
+    
+    //const data = await this.backend.getSessionInfo();
+    return data;
   }
 }

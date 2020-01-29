@@ -10,7 +10,7 @@ namespace PW.Services.Interfaces
 {
     public interface ITransactionService
     {
-        Task<TransactionDto> CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto);
+        Task CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto);
         Task<IOrderedEnumerable<TransactionDto>> GetTransactionsOrderedByDateAsync(string email);
         //Task<IOrderedEnumerable<TransactionDto>> GetPayeeTransactionsOrderedByDateAsync(string email);
         //Task<IEnumerable<PwTransaction>> GetPayeeTransactionsAsync(string email);

@@ -18,7 +18,7 @@ namespace PW.Web.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class AccountController : ControllerBase
+    public class SessionController : ControllerBase
     {
         private const string InvalidUserDataMessage = "Invalid user data";
         private const string CurrentUserNotFoundMessage = "Current user not found";
@@ -27,7 +27,7 @@ namespace PW.Web.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public AccountController(IMembershipService membershipService,
+        public SessionController(IMembershipService membershipService,
             IUserRepository userRepository,
             IMapper mapper)
         {
@@ -65,28 +65,29 @@ namespace PW.Web.Controllers
         }
                 
         [HttpPost]
-        public async Task<ActionResult> SignUp([FromBody] SignUpDto signUpDto)
+        public async Task<ActionResult<UserBalanceDto>> SignUp([FromBody] SignUpDto signUpDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(InvalidUserDataMessage);
             }
 
+            UserBalanceDto result;
             try
             {
-                await _membershipService.CreateUserAsync(signUpDto);
+                result = await _membershipService.CreateUserAsync(signUpDto);
             }
             catch (InvalidDataException ex)
             {
                 return BadRequest(ex.Message);
             }
 
-            return Ok();
+            return Ok(result);
         }
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<UserBalanceDto>> Balance()
+        public async Task<ActionResult<UserBalanceDto>> GetSessionInfo()
         {
             var email = HttpContext.User.Identity.Name;
             var user = await _userRepository.GetByEmailAsync(email);

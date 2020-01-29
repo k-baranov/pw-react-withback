@@ -6,9 +6,9 @@ namespace PW.DataTransferObjects.Transactions
 {
     public class TransactionDto
     {
-        public string DateTime { get; set; }
-        public string Name { get; set; }
+        public string Date { get; set; }
+        public string CorrespondentName { get; set; }
         public int Amount { get; set; }
-        public int Balance { get; set; }
+        public int ResultBalance { get; set; }        
     }
 }

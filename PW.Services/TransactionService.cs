@@ -27,10 +27,10 @@ namespace PW.Services
             _mapper = mapper;
         }
 
-        public async Task<TransactionDto> CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto)
+        public async Task CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto)
         {
             var payee = await _userRepository.GetByEmailAsync(payeeEmail);
-            var recipient = await _userRepository.GetByEmailAsync(createTransactionDto.RecipientEmail);
+            var recipient = await _userRepository.GetByEmailAsync(createTransactionDto.UserName);
 
             ValidateCreation(payee, recipient, createTransactionDto.Amount);
 
@@ -47,9 +47,7 @@ namespace PW.Services
                 TransactionDateTime = DateTime.Now
             };
 
-            await _transactionRepository.AddAsync(transaction);
-            var result = _mapper.Map<TransactionDto>(transaction);
-            return result;
+            await _transactionRepository.AddAsync(transaction);            
         }
 
         private void ValidateCreation(PwUser payee, PwUser recipient, int amount)
@@ -67,7 +65,7 @@ namespace PW.Services
 
         public async Task<IOrderedEnumerable<TransactionDto>> GetTransactionsOrderedByDateAsync(string email)
         {
-            var result = (await GetTransactionsAsync(email)).OrderByDescending(t => t.DateTime);
+            var result = (await GetTransactionsAsync(email)).OrderByDescending(t => t.Date);
             return result;
         }
 
@@ -76,16 +74,16 @@ namespace PW.Services
             var user = await _userRepository.GetWithTransactionsByEmailAsync(email);
             var payeeDtos = user.PayeeTransactions.Select(t => {
                 var transactionDto = _mapper.Map<TransactionDto>(t);
-                transactionDto.Name = t.Recipient.UserName;
+                transactionDto.CorrespondentName = t.Recipient.UserName;
                 transactionDto.Amount = -t.Amount;
-                transactionDto.Balance = t.ResultingPayeeBalance;
+                transactionDto.ResultBalance = t.ResultingPayeeBalance;
                 return transactionDto;
             });
             var recipientDtos = user.RecipientTransactions.Select(t => {
                 var transactionDto = _mapper.Map<TransactionDto>(t);
-                transactionDto.Name = t.Payee.UserName;
+                transactionDto.CorrespondentName = t.Payee.UserName;
                 transactionDto.Amount = t.Amount;
-                transactionDto.Balance = t.ResultingRecipientBalance;
+                transactionDto.ResultBalance = t.ResultingRecipientBalance;
                 return transactionDto;
             });
 

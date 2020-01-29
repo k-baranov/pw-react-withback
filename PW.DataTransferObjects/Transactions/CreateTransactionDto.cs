@@ -8,7 +8,7 @@ namespace PW.DataTransferObjects.Transactions
     public class CreateTransactionDto
     {
         [Required]
-        public string RecipientEmail { get; set; }
+        public string UserName { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Amount must be between 1 and {int.MaxValue}")]

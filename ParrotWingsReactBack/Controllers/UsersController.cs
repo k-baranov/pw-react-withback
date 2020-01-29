@@ -16,21 +16,18 @@ namespace PW.Web.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-
-        public UsersController(IUserRepository userRepository, 
-            IMapper mapper)
+        
+        public UsersController(IUserRepository userRepository)
         {
-            _userRepository = userRepository;
-            _mapper = mapper;
+            _userRepository = userRepository;            
         }
                 
         [HttpGet]
-        public async Task<ActionResult<UserDto>> AllExceptCurrent()
+        public async Task<ActionResult<UserDto>> GetUsernameOptions()
         {
             var email = HttpContext.User.Identity.Name;
-            var user = await _userRepository.FindByAsync(x => x.Email != email);
-            var result = _mapper.Map<UserDto>(user);
+            var users = await _userRepository.FindByAsync(x => x.Email != email);
+            var result = users.Select(u => u.UserName);
             return Ok(result);
         }
     }
