@@ -18,16 +18,12 @@ namespace PW.Web.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
-        private readonly IMapper _mapper;
-        //private readonly IHubContext<BalanceHub, IBalanceHubClient> _balanceHubContext;
+        private readonly IMapper _mapper;        
 
-        public TransactionsController(IMembershipService membershipService,
-            ITransactionService transactionService,
-            IMapper mapper
-            /*IHubContext<BalanceHub, IBalanceHubClient> balanceHubContext*/)
+        public TransactionsController(ITransactionService transactionService,
+            IMapper mapper)
         {            
-            _transactionService = transactionService;
-            //_balanceHubContext = balanceHubContext;
+            _transactionService = transactionService;            
             _mapper = mapper;
         }
                 
@@ -40,17 +36,7 @@ namespace PW.Web.Controllers
 
             return Ok(result);
         }
-
-        //[HttpGet]
-        //public async Task<IActionResult> PayeeTransactions()
-        //{
-        //    var email = HttpContext.User.Identity.Name;
-        //    var transactions = await _transactionService.GetPayeeTransactionsOrderedByDateAsync(email);
-        //    var result = transactions.Select(x => x.ToPastViewModel());
-
-        //    return Ok(result);
-        //}
-                
+                        
         [HttpPost]
         public async Task<ActionResult> Create([FromBody]CreateTransactionDto createTransactionDto)
         {
@@ -67,9 +53,7 @@ namespace PW.Web.Controllers
             catch (InvalidDataException ex)
             {
                 return BadRequest(ex.Message);
-            }
-            //_balanceHubContext.Clients.User(transaction.Payee.Email).UpdateBalance(transaction.ResultingPayeeBalance);
-            //_balanceHubContext.Clients.User(transaction.Recipient.Email).UpdateBalance(transaction.ResultingRecipientBalance);
+            }           
 
             return Ok();
         }

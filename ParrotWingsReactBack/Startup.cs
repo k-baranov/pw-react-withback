@@ -12,6 +12,7 @@ using PW.DataAccess;
 using PW.DataAccess.Interfaces;
 using PW.DataAccess.Repositories;
 using PW.Services;
+using PW.Services.Hubs;
 using PW.Services.Interfaces;
 using PW.Services.Mapping;
 
@@ -53,6 +54,7 @@ namespace ParrotWingsReactBack
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +82,7 @@ namespace ParrotWingsReactBack
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapHub<BalanceHub>("/balance");
             });
 
             app.UseSpa(spa =>

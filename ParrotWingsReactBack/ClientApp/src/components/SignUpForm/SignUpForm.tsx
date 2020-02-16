@@ -12,13 +12,13 @@ export default function SignUpForm({setActiveNavItem}: INavProps) {
   const history = useHistory();
   const { signUp } = useContext(SessionContext);
   const [ email, setEmail ] = useState('');
-  const [ username, setUsername ] = useState('');
+  const [ userName, setUsername ] = useState('');
   const [ password, setPassword ] = useState('');    
   const [ confirmPassword, setConfirmPassword ] = useState('');
 
   const handleSignUpClick = async () => {
     try {
-      await signUp({email, username, password, confirmPassword});
+      await signUp({email, userName, password, confirmPassword});
       setActiveNavItem(NavRoute.Home);
       history.push(NavRoute.Home);
     } catch (ex) {
@@ -45,7 +45,7 @@ export default function SignUpForm({setActiveNavItem}: INavProps) {
               fluid 
               iconPosition='left' 
               placeholder='Username'
-              value={username}
+              value={userName}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} 
             />
             <Form.Input

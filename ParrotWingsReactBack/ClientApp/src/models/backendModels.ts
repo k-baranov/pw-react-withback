@@ -6,12 +6,12 @@ export interface ITransactionInfo {
 }
 
 export interface INewTransaction {
-  username: string;
+  userName: string;
   amount: number;  
 }
 
 export interface ISessionInfo {
-  username: string;
+  userName: string;
   balance: number;
 }
 
@@ -22,14 +22,14 @@ export interface ILoginOptions {
 
 export interface ISignUpOptions {
   email: string;
-  username: string;
+  userName: string;
   password: string;
   confirmPassword: string;
 }
 
 export interface IUserInfo {
   email: string;
-  username: string;
+  userName: string;
   password: string;
   balance: number;
 }

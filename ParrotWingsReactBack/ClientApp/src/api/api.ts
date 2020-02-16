@@ -2,7 +2,6 @@ import axios, { AxiosInstance } from 'axios';
 
 import SessionApi from './sessionApi';
 import TransactionApi from './transactionApi';
-import FakeBackend from '../fakeBackend/fakeBackend';
 
 export default class Api {    
   public readonly session: SessionApi;

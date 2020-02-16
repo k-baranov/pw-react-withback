@@ -9,7 +9,7 @@ export default function UserBalance() {
     <Menu.Menu position='right'>
       <Menu.Item header>
         <Icon name='user' />
-        Username: {session ? session.username : 'unknown'}
+        Username: {session ? session.userName : 'unknown'}
       </Menu.Item>
       <Menu.Item header>
         Balance: {session ? session.balance : 0} pw

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using PW.DataAccess.Interfaces;
 using PW.DataTransferObjects.Transactions;
 using PW.Entities;
+using PW.Services.Hubs;
 using PW.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -19,12 +21,17 @@ namespace PW.Services
         private ITransactionRepository _transactionRepository;
         private IUserRepository _userRepository;
         private IMapper _mapper;
-
-        public TransactionService(ITransactionRepository transactionRepository, IUserRepository userRepository, IMapper mapper)
+        private IHubContext<BalanceHub, IBalanceHubClient> _balanceHubContext;
+        
+        public TransactionService(ITransactionRepository transactionRepository, 
+            IUserRepository userRepository, 
+            IMapper mapper,
+            IHubContext<BalanceHub, IBalanceHubClient> balanceHubContext)
         {
             _transactionRepository = transactionRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _balanceHubContext = balanceHubContext;
         }
 
         public async Task CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto)
@@ -48,6 +55,7 @@ namespace PW.Services
             };
 
             await _transactionRepository.AddAsync(transaction);            
+            await _balanceHubContext.Clients.Group(recipient.Email).UpdateBalance(recipient.Balance);
         }
 
         private void ValidateCreation(PwUser payee, PwUser recipient, int amount)
@@ -89,19 +97,6 @@ namespace PW.Services
 
             var result = payeeDtos.Union(recipientDtos);
             return result;
-        }
-
-        //public async Task<IOrderedEnumerable<PwTransaction>> GetPayeeTransactionsOrderedByDateAsync(string email)
-        //{
-        //    var result = (await GetPayeeTransactionsAsync(email)).OrderByDescending(t => t.TransactionDateTime);
-        //    return result;
-        //}
-
-        //public async Task<IEnumerable<PwTransaction>> GetPayeeTransactionsAsync(string email)
-        //{
-        //    var user = await _userRepository.GetSingleWithTransactionsByEmailAsync(email);
-        //    var result = user.PayeeTransactions;
-        //    return result;
-        //}
+        }        
     }
 }

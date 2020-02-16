@@ -1,7 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { ILoginOptions, ISignUpOptions, ISessionInfo } from '../fakeBackend/backendModels';
-import FakeBackend from '../fakeBackend/fakeBackend';
+import { ILoginOptions, ISignUpOptions, ISessionInfo } from '../models/backendModels';
 
 const LOGIN_URL = '/api/session/login';
 const SINGUP_URL = '/api/session/signUp';
@@ -13,36 +12,26 @@ export default class SessionApi {
   constructor(private readonly client: AxiosInstance) {}
 
   async login(options: ILoginOptions): Promise<ISessionInfo> {
-    const { data } = await this.client.post(LOGIN_URL, options);
-    
-    //const data = await this.backend.login(options);
+    const { data } = await this.client.post(LOGIN_URL, options);        
     return { ...data };
   }
 
   async signUp(options: ISignUpOptions): Promise<ISessionInfo> {
-    const { data } = await this.client.post(SINGUP_URL, options);
-    
-    //const data = await this.backend.signUp(options);
+    const { data } = await this.client.post(SINGUP_URL, options);    
     return { ...data };
   }
 
   async logout(): Promise<void> {
     await this.client.post(LOGOUT_URL);
-
-    //await this.backend.logout();
   }
 
   async getSessionInfo(): Promise<ISessionInfo> {
-    const { data } = await this.client.get(SESSION_INFO_URL);
-    
-    //const data = await this.backend.getSessionInfo();
+    const { data } = await this.client.get(SESSION_INFO_URL);    
     return { ...data };
   }
 
   async getUsernameOptions(): Promise<Array<string>> {
-    const { data } = await this.client.get(USERNAME_OPTIONS_URL);
-    
-    //const data = await this.backend.getSessionInfo();
+    const { data } = await this.client.get(USERNAME_OPTIONS_URL);    
     return data;
   }
 }

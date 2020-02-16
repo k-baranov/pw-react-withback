@@ -38,7 +38,7 @@ export default function NewTransaction() {
 
   const handleSubmitClick = async () => {
     try {
-      await api.transaction.newTransaction({username: recipient, amount: amount})
+      await api.transaction.newTransaction({userName: recipient, amount: amount})
       refreshSession();
       toast.success('Transaction remited')
     } catch (ex) {

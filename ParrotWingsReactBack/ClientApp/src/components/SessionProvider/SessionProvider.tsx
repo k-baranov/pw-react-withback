@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useContext, ReactNode } from 'react';
 import { toast } from 'react-toastify';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr'
+
 import { ApiContext } from '../ApiProvider/ApiProvider';
-import { ISessionInfo, ILoginOptions, ISignUpOptions } from '../../fakeBackend/backendModels';
+import { ISessionInfo, ILoginOptions, ISignUpOptions } from '../../models/backendModels';
 
 export interface ISessionContext {
   session: ISessionInfo | null;
@@ -22,6 +24,11 @@ export const SessionContext = React.createContext<ISessionContext>({
 export default function SessionProvider({ children }: { children?: ReactNode}) {
   const api = useContext(ApiContext);
   const [session, setSession] = useState<ISessionInfo | null>(null);  
+  const [hubConnection, setHubConnection] = useState<HubConnection | null>(null);
+
+  const updateBalance = (data: number) => {
+    setSession(session === null ? null : {userName: session.userName, balance : data});
+  }
 
   const refreshSession = () => {
     fetchSession();
@@ -30,7 +37,10 @@ export default function SessionProvider({ children }: { children?: ReactNode}) {
   const login = async (options: ILoginOptions) => {
     try {
       const data = await api.session.login(options);
-      setSession(data);
+      setSession(data);      
+      setHubConnection(new HubConnectionBuilder()
+        .withUrl('/balance')
+        .build());      
     } catch (ex) {
       toast.error(ex.message);
     }
@@ -72,6 +82,13 @@ export default function SessionProvider({ children }: { children?: ReactNode}) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (hubConnection) {
+      hubConnection.on('UpdateBalance', updateBalance);
+      hubConnection.start();
+    }
+  }, [hubConnection]);
 
   return (
     <SessionContext.Provider value={{ session, refreshSession, login, signUp, logout }}>

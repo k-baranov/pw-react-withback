@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ApiContext } from '../ApiProvider/ApiProvider'
 import { useHistory } from 'react-router';
 import { NavRoute } from '../MainRouter/MainRouter';
-import { ITransactionInfo } from '../../fakeBackend/backendModels';
+import { ITransactionInfo } from '../../models/backendModels';
 import { INavProps } from '../Nav/Nav'
 
 export default function TransactionHistory({setActiveNavItem}: INavProps) {
