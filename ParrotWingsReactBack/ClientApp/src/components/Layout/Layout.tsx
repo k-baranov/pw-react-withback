@@ -1,13 +1,14 @@
 import React, { ReactElement } from 'react'
 import { Container } from 'semantic-ui-react'
-import Nav, { INavProps } from '../Nav/Nav'
 
-export default function Layout({children, activeNavItem, setActiveNavItem} : {children: ReactElement} & INavProps) {  
+import Nav from '../Nav/Nav'
+
+export default function Layout({children} : {children: ReactElement}) {
   return (
     <>
-      <Nav activeNavItem={activeNavItem} setActiveNavItem={setActiveNavItem}/>
+      <Nav/>
       <Container text>
-        {React.cloneElement(children, { setActiveNavItem })}
+        {children}
       </Container>
     </>
   )

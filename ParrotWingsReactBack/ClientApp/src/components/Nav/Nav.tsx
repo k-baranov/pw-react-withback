@@ -1,22 +1,24 @@
-import React, { useContext } from 'react'
-import { useHistory } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react'
+import { useHistory, useLocation } from 'react-router-dom';
 import {Menu, Button, Icon} from 'semantic-ui-react'
 
 import UserBalance from '../UserBalance/UserBalance';
 import { NavRoute } from '../MainRouter/MainRouter'
 import { SessionContext } from '../SessionProvider/SessionProvider';
 
-export interface INavProps {
-  activeNavItem?: NavRoute, 
-  setActiveNavItem: React.Dispatch<React.SetStateAction<NavRoute>>
-}
-
-export default function Nav({activeNavItem, setActiveNavItem}: INavProps) {
-  const { logout } = useContext(SessionContext);  
+export default function Nav() {
   const history = useHistory();
+  const location = useLocation();
+  const { logout } = useContext(SessionContext);
+  const [activeNavItem, setActiveNavItem] = useState(location.pathname as NavRoute);  
 
-  function handleMenuClick(route: NavRoute) {
-    setActiveNavItem(route);
+  useEffect(() => {
+    if (location.pathname !== activeNavItem) {
+      setActiveNavItem(location.pathname as NavRoute);
+    }
+  });
+
+  function handleMenuClick(route: NavRoute) {    
     history.push(route)    
   }
 

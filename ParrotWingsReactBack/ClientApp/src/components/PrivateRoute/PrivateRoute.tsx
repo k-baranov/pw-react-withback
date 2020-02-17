@@ -20,7 +20,7 @@ export default function PrivateRoute({ children, ...rest } : IPrivateRouteProps)
           <Redirect
             to={{
               pathname: NavRoute.Login,
-              state: { from: location }
+              state: { from: location.pathname }
             }}
           />
         )

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Layout from '../Layout/Layout';
@@ -20,34 +20,32 @@ export enum NavRoute {
 }
 
 export default function MainRouter() {
-  const [activeNavItem, setActiveNavItem] = useState(NavRoute.Home);
-  
   return (
     <Router>
       <Switch>
         <Route path={NavRoute.Login}>
-          <LoginForm setActiveNavItem={setActiveNavItem}/>
+          <LoginForm/>
         </Route>
         <Route path={NavRoute.SignUp}>
-          <SignUpForm setActiveNavItem={setActiveNavItem}/>
+          <SignUpForm/>
         </Route>
         <PrivateRoute exact path={NavRoute.Home}>
-          <Layout activeNavItem={activeNavItem} setActiveNavItem={setActiveNavItem}>
+          <Layout>
             <Home/>
           </Layout>
         </PrivateRoute>
         <PrivateRoute path={NavRoute.TransHistory}>
-          <Layout activeNavItem={activeNavItem} setActiveNavItem={setActiveNavItem}>
-            <TransactionHistory setActiveNavItem={setActiveNavItem}/>
+          <Layout>
+            <TransactionHistory/>
           </Layout>
         </PrivateRoute>
         <PrivateRoute path={NavRoute.TransNew}>
-          <Layout activeNavItem={activeNavItem} setActiveNavItem={setActiveNavItem}>
+          <Layout>
             <NewTransaction/>
           </Layout>
         </PrivateRoute>
         <PrivateRoute path={NavRoute.NotFound}>
-          <Layout activeNavItem={activeNavItem} setActiveNavItem={setActiveNavItem}>
+          <Layout>
             <NotFound/>
           </Layout>
         </PrivateRoute>

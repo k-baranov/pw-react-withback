@@ -6,9 +6,8 @@ import { ApiContext } from '../ApiProvider/ApiProvider'
 import { useHistory } from 'react-router';
 import { NavRoute } from '../MainRouter/MainRouter';
 import { ITransactionInfo } from '../../models/backendModels';
-import { INavProps } from '../Nav/Nav'
 
-export default function TransactionHistory({setActiveNavItem}: INavProps) {
+export default function TransactionHistory() {
   const history = useHistory();    
   const [ transactions, setTransactions ] = useState(new Array<ITransactionInfo>());
   const api = useContext(ApiContext);
@@ -28,8 +27,7 @@ export default function TransactionHistory({setActiveNavItem}: INavProps) {
   }, [])
 
   const handleCopyClick = (transaction: ITransactionInfo) => {
-    const absAmount = Math.abs(transaction.amount);
-    setActiveNavItem!(NavRoute.TransNew);
+    const absAmount = Math.abs(transaction.amount);    
     history.push(`${NavRoute.TransNew}?username=${transaction.correspondentName}&amount=${absAmount}`)
   }
 

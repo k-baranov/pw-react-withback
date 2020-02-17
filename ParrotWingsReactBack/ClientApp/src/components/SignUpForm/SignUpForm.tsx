@@ -6,9 +6,8 @@ import styles from './SignUpForm.module.css'
 import { useHistory } from 'react-router';
 import { SessionContext } from '../SessionProvider/SessionProvider';
 import { NavRoute } from '../MainRouter/MainRouter';
-import { INavProps } from '../Nav/Nav'
 
-export default function SignUpForm({setActiveNavItem}: INavProps) {
+export default function SignUpForm() {
   const history = useHistory();
   const { signUp } = useContext(SessionContext);
   const [ email, setEmail ] = useState('');
@@ -18,8 +17,7 @@ export default function SignUpForm({setActiveNavItem}: INavProps) {
 
   const handleSignUpClick = async () => {
     try {
-      await signUp({email, userName, password, confirmPassword});
-      setActiveNavItem(NavRoute.Home);
+      await signUp({email, userName, password, confirmPassword});      
       history.push(NavRoute.Home);
     } catch (ex) {
       toast.error(ex.message);
