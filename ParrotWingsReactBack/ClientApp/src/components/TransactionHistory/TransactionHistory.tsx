@@ -1,11 +1,11 @@
 import React, { useEffect, useContext, useState } from 'react'
 import { Table, Button, Icon } from 'semantic-ui-react'
-import { toast } from 'react-toastify';
 
 import { ApiContext } from '../ApiProvider/ApiProvider'
 import { useHistory } from 'react-router';
 import { NavRoute } from '../MainRouter/MainRouter';
 import { ITransactionInfo } from '../../models/backendModels';
+import { toastResponseErrors } from '../../api/api';
 
 export default function TransactionHistory() {
   const history = useHistory();    
@@ -17,7 +17,7 @@ export default function TransactionHistory() {
       const data = await api.transaction.getTransactions();
       setTransactions(data);
     } catch (ex) {
-      toast.error(ex.message);
+      toastResponseErrors(ex.response?.data);
     }
   }
 

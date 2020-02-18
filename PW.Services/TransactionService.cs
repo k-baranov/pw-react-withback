@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using PW.DataAccess.Interfaces;
 using PW.DataTransferObjects.Transactions;
 using PW.Entities;
+using PW.Services.Exceptions;
 using PW.Services.Hubs;
 using PW.Services.Interfaces;
 using System;
@@ -16,7 +17,8 @@ namespace PW.Services
     public class TransactionService : ITransactionService
     {
         private const string TransactionSizeErrorMessage = "Transaction size exceeds the current balance";
-        private const string SendSelfErrorMessage = "You can not send PW self";
+        private const string SendSelfErrorMessage = "PW cannot be sent to yourself";
+        private const string UserNotExistErrorMessage = "User with name \"{0}\" does not exist";
 
         private ITransactionRepository _transactionRepository;
         private IUserRepository _userRepository;
@@ -37,9 +39,9 @@ namespace PW.Services
         public async Task CreateTransactionAsync(string payeeEmail, CreateTransactionDto createTransactionDto)
         {
             var payee = await _userRepository.GetByEmailAsync(payeeEmail);
-            var recipient = await _userRepository.GetByNameAsync(createTransactionDto.UserName);
+            var recipient = await _userRepository.GetByNameAsync(createTransactionDto.Recipient);
 
-            ValidateCreation(payee, recipient, createTransactionDto.Amount);
+            ValidateCreation(payee, recipient, createTransactionDto.Amount, createTransactionDto.Recipient);
 
             payee.Balance -= createTransactionDto.Amount;
             recipient.Balance += createTransactionDto.Amount;
@@ -58,16 +60,21 @@ namespace PW.Services
             await _balanceHubContext.Clients.Group(recipient.Email).UpdateBalance(recipient.Balance);
         }
 
-        private void ValidateCreation(PwUser payee, PwUser recipient, int amount)
+        private void ValidateCreation(PwUser payee, PwUser recipient, int amount, string recipientName)
         {
+            if (recipient == null)
+            {
+                throw new PWException(string.Format(UserNotExistErrorMessage, recipientName));
+            }
+
             if (amount > payee.Balance)
             {
-                throw new ArgumentException(TransactionSizeErrorMessage);
+                throw new PWException(TransactionSizeErrorMessage);
             }
 
             if (payee.Id == recipient.Id)
             {
-                throw new ArgumentException(SendSelfErrorMessage);
+                throw new PWException(SendSelfErrorMessage);
             }
         }
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PW.DataAccess.Interfaces;
 using PW.DataTransferObjects.Users;
 using PW.Entities;
+using PW.Services.Exceptions;
 using PW.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -40,15 +41,15 @@ namespace PW.Web.Controllers
         public async Task<ActionResult<UserBalanceDto>> Login([FromBody] LoginDto loginDto)
         {
             UserDto userDto;
-            ClaimsPrincipal claimsPrincipal;
+            ClaimsPrincipal claimsPrincipal;            
             try
             {
                 userDto = await _membershipService.GetUserAsync(loginDto);
                 claimsPrincipal = _membershipService.GetUserClaimsPrincipal(userDto);
             }
-            catch (Exception ex)
+            catch (PWException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { errorMessage = ex.Message});
             }
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
@@ -79,9 +80,9 @@ namespace PW.Web.Controllers
                 userDto = await _membershipService.CreateUserAsync(signUpDto);
                 claimsPrincipal = _membershipService.GetUserClaimsPrincipal(userDto);
             }
-            catch (InvalidDataException ex)
+            catch (PWException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { errorMessage = ex.Message });
             }
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
@@ -98,7 +99,7 @@ namespace PW.Web.Controllers
             var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
             {
-                return BadRequest(CurrentUserNotFoundMessage);
+                return BadRequest(new { errorMessage = CurrentUserNotFoundMessage });
             }
 
             var result = _mapper.Map<UserBalanceDto>(user);

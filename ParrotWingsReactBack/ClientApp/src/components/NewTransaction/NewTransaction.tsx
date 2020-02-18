@@ -1,10 +1,11 @@
 import React, { useState, ChangeEvent, useContext, useEffect, SyntheticEvent } from 'react'
 import { useLocation } from 'react-router-dom';
-import { Form, Button, Dropdown } from 'semantic-ui-react'
+import { Form, Button, Dropdown, DropdownProps } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 
 import { ApiContext } from '../ApiProvider/ApiProvider';
 import { SessionContext } from '../SessionProvider/SessionProvider';
+import { toastResponseErrors } from '../../api/api';
 
 export default function NewTransaction() {
   const api = useContext(ApiContext);
@@ -20,7 +21,7 @@ export default function NewTransaction() {
       const result = await api.session.getUsernameOptions();
       setRecipientOptions(result);
     } catch (ex) {
-      toast.error(ex.message);
+      toastResponseErrors(ex.response?.data);
     }
   }
 
@@ -38,11 +39,11 @@ export default function NewTransaction() {
 
   const handleSubmitClick = async () => {
     try {
-      await api.transaction.newTransaction({userName: recipient, amount: amount})
+      await api.transaction.newTransaction({recipient: recipient, amount: amount})
       refreshSession();
       toast.success('Transaction remited')
     } catch (ex) {
-      toast.error(ex.message);
+      toastResponseErrors(ex.response?.data);
     }
   }
 
@@ -57,7 +58,7 @@ export default function NewTransaction() {
           selection
           options={recipientOptions.map((value) => ({key: value, text: value, value}))}
           value={recipient}
-          onChange={(e: SyntheticEvent<HTMLElement, Event>, data: object) => setRecipient((data as any).value)}
+          onChange={(e: SyntheticEvent<HTMLElement, Event>, data: DropdownProps) => setRecipient(data.value as string)}
         />
       </Form.Field>
       <Form.Field>

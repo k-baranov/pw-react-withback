@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using PW.DataAccess.Interfaces;
 using PW.DataTransferObjects.Users;
 using PW.Entities;
+using PW.Services.Exceptions;
 using PW.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,8 @@ namespace PW.Services
     public class MembershipService : IMembershipService
     {
         private const string InvalidUsernameOrPasswordMessage = "Invalid username or password";
-        private const string EmailIsAlreadyInUseMessage = "Email is already in use";
+        private const string EmailIsAlreadyRegistredMessage = "Email \"{0}\" is already registred";
+        private const string UsernameIsAlreadyRegistredMessage = "Username \"{0}\" is already registred";
         private const string CanNotGetStartBalanceMessage = "Can not get start balance from config";
 
         private readonly IConfiguration _configuration;
@@ -50,7 +52,7 @@ namespace PW.Services
             var user = await _userRepository.GetByEmailAsync(loginDto.Email);
             if (user == null || !IsUserValid(user, loginDto.Password))
             {
-                throw new ArgumentException(InvalidUsernameOrPasswordMessage);
+                throw new PWException(InvalidUsernameOrPasswordMessage);
             }
             var result = _mapper.Map<UserDto>(user);
             return result;
@@ -58,12 +60,7 @@ namespace PW.Services
 
         public async Task<UserDto> CreateUserAsync(SignUpDto signUpDto)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(signUpDto.Email);
-
-            if (existingUser != null)
-            {
-                throw new ArgumentException(EmailIsAlreadyInUseMessage);
-            }
+            await CheckUserRegistred(signUpDto);
 
             var passwordSalt = _encryptionService.CreateSalt();
             int startBalance;
@@ -73,7 +70,7 @@ namespace PW.Services
             }
             catch (Exception)
             {
-                throw new Exception(CanNotGetStartBalanceMessage);
+                throw new PWException(CanNotGetStartBalanceMessage);
             }
 
             var user = new PwUser()
@@ -93,6 +90,20 @@ namespace PW.Services
         {
             var result = string.Equals(_encryptionService.EncryptPassword(password, user.Salt), user.PasswordHash);
             return result;
+        }
+
+        private async Task CheckUserRegistred(SignUpDto signUpDto)
+        {
+            var existingUser = await _userRepository.GetByEmailAsync(signUpDto.Email);
+            if (existingUser != null)
+            {
+                throw new PWException(string.Format(EmailIsAlreadyRegistredMessage, signUpDto.Email));
+            }
+            existingUser = await _userRepository.GetByNameAsync(signUpDto.UserName);
+            if (existingUser != null)
+            {
+                throw new PWException(string.Format(UsernameIsAlreadyRegistredMessage, signUpDto.UserName));
+            }
         }
     }
 }

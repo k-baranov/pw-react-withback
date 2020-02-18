@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PW.DataTransferObjects.Transactions;
 using PW.Entities;
+using PW.Services.Exceptions;
 using PW.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -50,9 +51,9 @@ namespace PW.Web.Controllers
             {
                 await _transactionService.CreateTransactionAsync(payeeEmail, createTransactionDto);
             }
-            catch (InvalidDataException ex)
+            catch (PWException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { errorMessage = ex.Message });
             }           
 
             return Ok();

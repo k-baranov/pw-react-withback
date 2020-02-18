@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext, ReactNode } from 'react';
-import { toast } from 'react-toastify';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr'
 
 import { ApiContext } from '../ApiProvider/ApiProvider';
 import { ISessionInfo, ILoginOptions, ISignUpOptions } from '../../models/backendModels';
+import { toastResponseErrors } from '../../api/api';
 
 export interface ISessionContext {
   session: ISessionInfo | null;
@@ -34,32 +34,24 @@ export default function SessionProvider({ children }: { children?: ReactNode}) {
     fetchSession();
   }
 
-  const login = async (options: ILoginOptions) => {
-    try {
-      const data = await api.session.login(options);
-      setSession(data);      
-      setHubConnection(new HubConnectionBuilder()
-        .withUrl('/balance')
-        .build());      
-    } catch (ex) {
-      toast.error(ex.message);
-    }
+  const login = async (options: ILoginOptions) => {    
+    const data = await api.session.login(options);
+    setSession(data);
+    setHubConnection(new HubConnectionBuilder()
+      .withUrl('/balance')
+      .build());
   };
 
   const signUp = async (options: ISignUpOptions) => {
-    try {
-      const data = await api.session.signUp(options);
-      setSession(data);
-    } catch (ex) {
-      toast.error(ex.message);
-    }
+    const data = await api.session.signUp(options);
+    setSession(data);
   };
 
   const logout = async () => {
     try {
       await api.session.logout();
     } catch (ex) {
-      toast.error(ex.message);
+      toastResponseErrors(ex.response?.data);
     } finally {
       setSession(null);
     }

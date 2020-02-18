@@ -4,8 +4,9 @@ import { Button, Form, Grid, Header, Message, Segment } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 
 import styles from './LoginForm.module.css'
-import { SessionContext } from '../SessionProvider/SessionProvider';
+import { SessionContext,  } from '../SessionProvider/SessionProvider';
 import { NavRoute } from '../MainRouter/MainRouter';
+import { toastResponseErrors } from '../../api/api';
 
 export default function LoginForm() {
   const history = useHistory();
@@ -18,10 +19,10 @@ export default function LoginForm() {
 
   const handleLoginClick = async () => {
     try {
-      await login({email, password});      
+      await login({email, password});
       history.replace(from);
     } catch (ex) {
-      toast.error(ex.message);
+      toastResponseErrors(ex.response?.data);
     }
   }
 
@@ -62,8 +63,7 @@ export default function LoginForm() {
           </Message>
         </Grid.Column>
       </Grid>
-      :
-      (
-      <Redirect to={{ pathname: from }}/>)
+      :      
+      <Redirect to={{ pathname: from }}/>
   )
 } 

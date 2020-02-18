@@ -6,7 +6,7 @@ export interface ITransactionInfo {
 }
 
 export interface INewTransaction {
-  userName: string;
+  recipient: string;
   amount: number;  
 }
 
