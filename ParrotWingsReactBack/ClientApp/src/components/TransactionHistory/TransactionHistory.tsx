@@ -46,7 +46,7 @@ export default function TransactionHistory() {
       
       <Table.Body>
       {transactions.map((transaction: ITransactionInfo) => 
-        <Table.Row key={transaction.date}>
+        <Table.Row key={`${transaction.date}_${transaction.resultBalance}`}>
           <Table.Cell>{transaction.date}</Table.Cell>
           <Table.Cell>{transaction.correspondentName}</Table.Cell>
           <Table.Cell>{transaction.amount}</Table.Cell>

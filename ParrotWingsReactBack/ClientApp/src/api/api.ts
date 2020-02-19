@@ -2,7 +2,8 @@ import axios, { AxiosInstance } from 'axios';
 import { toast } from 'react-toastify';
 
 import SessionApi from './sessionApi';
-import TransactionApi from './transactionApi';
+import TransactionsApi from './transactionApi';
+import UsersApi from './usersApi';
 
 const defaultErrorMessage = 'Internal server error';
 
@@ -35,7 +36,8 @@ export function toastResponseErrors(response: IResponseData) {
 
 export default class Api {    
   public readonly session: SessionApi;
-  public readonly transaction: TransactionApi;
+  public readonly transaction: TransactionsApi;
+  public readonly users: UsersApi;
   
   private client: AxiosInstance;
 
@@ -43,6 +45,7 @@ export default class Api {
     this.client = axios.create();
 
     this.session = new SessionApi(this.client);
-    this.transaction = new TransactionApi(this.client);
+    this.transaction = new TransactionsApi(this.client);
+    this.users = new UsersApi(this.client);
   }  
 }

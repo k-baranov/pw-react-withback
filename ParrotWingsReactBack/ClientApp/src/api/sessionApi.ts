@@ -6,7 +6,6 @@ const LOGIN_URL = '/api/session/login';
 const SINGUP_URL = '/api/session/signUp';
 const LOGOUT_URL = '/api/session/logout';
 const SESSION_INFO_URL = '/api/session/getSessionInfo';
-const USERNAME_OPTIONS_URL = '/api/users/getUsernameOptions';
 
 export default class SessionApi {  
   constructor(private readonly client: AxiosInstance) {}
@@ -28,10 +27,5 @@ export default class SessionApi {
   async getSessionInfo(): Promise<ISessionInfo> {
     const { data } = await this.client.get(SESSION_INFO_URL);    
     return { ...data };
-  }
-
-  async getUsernameOptions(): Promise<Array<string>> {
-    const { data } = await this.client.get(USERNAME_OPTIONS_URL);    
-    return data;
   }
 }

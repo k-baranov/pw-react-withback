@@ -5,7 +5,7 @@ import { ITransactionInfo, INewTransaction } from '../models/backendModels';
 const TRANSACTION_LIST_URL = '/api/transactions/getAllForCurrentUser';
 const NEW_TRANSACTION_URL = '/api/transactions/create';
 
-export default class TransactionApi {
+export default class TransactionsApi {
   constructor(private readonly client: AxiosInstance) {}
    
   async newTransaction(newTransaction: INewTransaction): Promise<void> {

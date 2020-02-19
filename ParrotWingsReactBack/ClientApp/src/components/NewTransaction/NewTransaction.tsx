@@ -18,7 +18,7 @@ export default function NewTransaction() {
 
   const fetchRecipientOptions = async () => {
     try {
-      const result = await api.session.getUsernameOptions();
+      const result = await api.users.getUsernameOptions();
       setRecipientOptions(result);
     } catch (ex) {
       toastResponseErrors(ex.response?.data);
